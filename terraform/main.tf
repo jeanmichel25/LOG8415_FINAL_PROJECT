@@ -60,7 +60,6 @@ resource "aws_instance" "t2_standalone" {
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.micro"
 #   user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
-#   key_name = "vockey"
 #   tags = {
 #     Name = "t2_manager"
 #   }
@@ -73,7 +72,6 @@ resource "aws_instance" "t2_standalone" {
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.micro"
 #   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-#   key_name = "vockey"
 #   tags = {
 #     Name = "t2_worker"
 #   }
@@ -86,7 +84,6 @@ resource "aws_instance" "t2_standalone" {
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.large"
 #   user_data = file("proxy_data.sh") # used to run script which deploys docker container on each instance
-#   key_name = "vockey"
 #   tags = {
 #     Name = "t2_proxy"
 #   }
@@ -99,7 +96,6 @@ resource "aws_instance" "t2_standalone" {
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.large"
 #   user_data = file("gatekeeper_data.sh") # used to run script which deploys docker container on each instance
-#   key_name = "vockey"
 #   tags = {
 #     Name = "t2_gatekeeper"
 #   }
