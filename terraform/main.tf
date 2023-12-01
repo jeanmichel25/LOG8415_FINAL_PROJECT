@@ -41,29 +41,29 @@ resource "aws_security_group" "final_security_group" {
   }
 }
 
-# create 1 t2.micro standalone instance
-resource "aws_instance" "t2_standalone" {
-  count = 1
-  ami = "ami-0fc5d935ebf8bc3bc"
-  vpc_security_group_ids = [aws_security_group.final_security_group.id]
-  instance_type = "t2.micro"
-  user_data = file("standalone_data.sh") # used to run script which deploys docker container on each instance
-  tags = {
-    Name = "t2_standalone"
-  }
-}
-
-# # create 1 t2.micro manager instance
-# resource "aws_instance" "t2_manager" {
+# # create 1 t2.micro standalone instance
+# resource "aws_instance" "t2_standalone" {
 #   count = 1
 #   ami = "ami-0fc5d935ebf8bc3bc"
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.micro"
-#   user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
+#   user_data = file("standalone_data.sh") # used to run script which deploys docker container on each instance
 #   tags = {
-#     Name = "t2_manager"
+#     Name = "t2_standalone"
 #   }
 # }
+
+# create 1 t2.micro manager instance
+resource "aws_instance" "t2_manager" {
+  count = 1
+  ami = "ami-0fc5d935ebf8bc3bc"
+  vpc_security_group_ids = [aws_security_group.final_security_group.id]
+  instance_type = "t2.micro"
+  user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
+  tags = {
+    Name = "t2_manager"
+  }
+}
 
 # # create 3 t2.micro worker instances
 # resource "aws_instance" "t2_worker" {
