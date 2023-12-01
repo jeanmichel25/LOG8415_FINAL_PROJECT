@@ -48,7 +48,6 @@ resource "aws_instance" "t2_standalone" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("standalone_data.sh") # used to run script which deploys docker container on each instance
-  key_name = "vockey"
   tags = {
     Name = "t2_standalone"
   }
