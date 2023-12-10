@@ -3,7 +3,7 @@
 exec > /home/ubuntu/startup.log 2>&1
 
 sudo apt-get update
-sudo apt-get install -y unzip
+sudo apt-get install -y unzip expect
 
 # install mysql cluster
 # common code
@@ -29,29 +29,29 @@ cd conf
 
 echo -e "[mysqld]
 ndbcluster
-datadir=/opt/mysqlcluster/home/mysqlc/bin/
+datadir=/opt/mysqlcluster/deploy/mysqld_data
 basedir=/opt/mysqlcluster/home/mysqlc
 port=3306" > my.cnf
 
 echo -e "[ndb_mgmd]
-hostname=ip-172-31-30-0.ec2.internal
+hostname=ip-172-31-45-0.ec2.internal
 datadir=/opt/mysqlcluster/deploy/ndb_data
 nodeid=1
 
 [ndbd default]
 noofreplicas=3
-datadir=/opt/mysqlcluster/home/mysqlc/bin/
+datadir=/opt/mysqlcluster/deploy/ndb_data
 
 [ndbd]
-hostname=ip-172-31-30-1.ec2.internal
+hostname=ip-172-31-45-1.ec2.internal
 nodeid=2
 
 [ndbd]
-hostname=ip-172-31-30-2.ec2.internal
+hostname=ip-172-31-45-2.ec2.internal
 nodeid=3
 
 [ndbd]
-hostname=ip-172-31-30-3.ec2.internal
+hostname=ip-172-31-45-3.ec2.internal
 nodeid=4
 
 [mysqld]
@@ -60,19 +60,48 @@ nodeid=50" > config.ini
 cd /opt/mysqlcluster/home/mysqlc
 scripts/mysql_install_db --no-defaults --datadir=/opt/mysqlcluster/deploy/mysqld_data
 
-ndb_mgmd -f /opt/mysqlcluster/deploy/conf/config.ini --initial --configdir=/opt/mysqlcluster/deploy/conf
+sudo chown -R mysql:mysql /opt/mysqlcluster/home/mysqlc
 
-# install sakila database
-cd /home/ubuntu
-wget https://downloads.mysql.com/docs/sakila-db.zip
-unzip sakila-db.zip
-cd sakila-db
+sudo /opt/mysqlcluster/home/mysqlc/bin/ndb_mgmd -f /opt/mysqlcluster/deploy/conf/config.ini --initial --configdir=/opt/mysqlcluster/deploy/conf/
 
-sudo mysqld -e "SOURCE sakila-schema.sql;"
-sudo mysqld -e "SOURCE sakila-data.sql;"
+ndb_mgm -e show
 
-# test to see if sakila database is installed
-sudo mysqld -e "USE sakila; SHOW FULL TABLES;"
-sudo mysqld -e "USE sakila; SELECT COUNT(*) FROM film;"
-sudo mysqld -e "USE sakila; SELECT COUNT(*) FROM film_text;"
+mysqld --defaults-file=/opt/mysqlcluster/deploy/conf/my.cnf --user=root &
 
+ndb_mgm -e show
+
+
+# # Create a service unit file for MySQL
+# echo -e "[Unit]
+# Description=MySQL Server
+# After=network.target
+
+# [Service]
+# ExecStart=/opt/mysqlcluster/home/mysqlc/bin/mysqld_safe
+# User=mysql
+# UMask=007
+# SyslogIdentifier=mysql
+# Restart=on-failure
+
+# [Install]
+# WantedBy=multi-user.target" | sudo tee /etc/systemd/system/mysql.service
+
+# # Reload the systemd daemon
+# sudo systemctl daemon-reload
+
+# # Start the MySQL server
+# sudo service mysql start
+
+# # install sakila database
+# cd /home/ubuntu
+# wget https://downloads.mysql.com/docs/sakila-db.zip
+# unzip sakila-db.zip
+# cd sakila-db
+
+# sudo mysql -e "SOURCE sakila-schema.sql;"
+# sudo mysql -e "SOURCE sakila-data.sql;"
+
+# # test to see if sakila database is installed
+# sudo mysql -e "USE sakila; SHOW FULL TABLES;"
+# sudo mysql -e "USE sakila; SELECT COUNT(*) FROM film;"
+# sudo mysql -e "USE sakila; SELECT COUNT(*) FROM film_text;"
