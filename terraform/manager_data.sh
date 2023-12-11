@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec > /home/ubuntu/startup.log 2>&1
+exec > /home/ubuntu/startup.log 2>&1 # tail -f startup.log
 
 sudo apt-get update
 sudo apt-get install -y unzip expect
@@ -70,38 +70,38 @@ mysqld --defaults-file=/opt/mysqlcluster/deploy/conf/my.cnf --user=root &
 
 ndb_mgm -e show
 
+# Secure install mysql
+tee ~/install_mysql.sh > /dev/null << EOF
+spawn $(which mysql_secure_installation)
+expect "Enter current password for root (enter for none):"
+send "root\r"
+expect "Set root password? \\[Y/n\\]"
+send "n\r"
+expect "Remove anonymous users? \\[Y/n\\]"
+send "y\r"
+expect "Disallow root login remotely? \\[Y/n\\]"
+send "y\r"
+expect "Remove test database and access to it? \\[Y/n\\]"
+send "y\r"
+expect "Reload privilege tables now? \\[Y/n\\]"
+send "y\r"
+EOF
 
-# # Create a service unit file for MySQL
-# echo -e "[Unit]
-# Description=MySQL Server
-# After=network.target
+sudo chown root.root ~/install_mysql.sh
+sudo chmod 4755 ~/install_mysql.sh
 
-# [Service]
-# ExecStart=/opt/mysqlcluster/home/mysqlc/bin/mysqld_safe
-# User=mysql
-# UMask=007
-# SyslogIdentifier=mysql
-# Restart=on-failure
+rm -f -v ~/install_mysql.sh
 
-# [Install]
-# WantedBy=multi-user.target" | sudo tee /etc/systemd/system/mysql.service
+# install sakila database
+cd /home/ubuntu
+wget https://downloads.mysql.com/docs/sakila-db.zip
+unzip sakila-db.zip
+cd sakila-db
 
-# # Reload the systemd daemon
-# sudo systemctl daemon-reload
+mysql -u root -e "SOURCE sakila-schema.sql;"
+mysql -u root -e "SOURCE sakila-data.sql;"
 
-# # Start the MySQL server
-# sudo service mysql start
-
-# # install sakila database
-# cd /home/ubuntu
-# wget https://downloads.mysql.com/docs/sakila-db.zip
-# unzip sakila-db.zip
-# cd sakila-db
-
-# sudo mysql -e "SOURCE sakila-schema.sql;"
-# sudo mysql -e "SOURCE sakila-data.sql;"
-
-# # test to see if sakila database is installed
-# sudo mysql -e "USE sakila; SHOW FULL TABLES;"
-# sudo mysql -e "USE sakila; SELECT COUNT(*) FROM film;"
-# sudo mysql -e "USE sakila; SELECT COUNT(*) FROM film_text;"
+# test to see if sakila database is installed
+mysql -u root -e "USE sakila; SHOW FULL TABLES;"
+mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film;"
+mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film_text;"
