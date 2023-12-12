@@ -60,7 +60,8 @@ resource "aws_instance" "t2_manager" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.45.0"
+  subnet_id = "subnet-087abcd53d89e50ee"
+  private_ip = "172.31.23.0"
   tags = {
     Name = "t2_manager"
   }
@@ -73,7 +74,7 @@ resource "aws_instance" "t2_worker1" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.45.1"
+  private_ip = "172.31.23.1"
   tags = {
     Name = "t2_worker1"
   }
@@ -85,7 +86,7 @@ resource "aws_instance" "t2_worker2" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.45.2"
+  private_ip = "172.31.23.2"
   tags = {
     Name = "t2_worker2"
   }
@@ -97,7 +98,7 @@ resource "aws_instance" "t2_worker3" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.45.3"
+  private_ip = "172.31.23.3"
   tags = {
     Name = "t2_worker3"
   }

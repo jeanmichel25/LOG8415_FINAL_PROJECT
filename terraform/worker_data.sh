@@ -21,7 +21,7 @@ sudo apt-get update && sudo apt-get -y install libncurses5
 
 # worker code
 mkdir -p /opt/mysqlcluster/deploy/ndb_data
-ndbd -c ip-172-31-45-0.ec2.internal:1186
+ndbd -c ip-172-31-23-0.ec2.internal:1186
 
 # Secure install mysql
 tee ~/install_mysql.sh > /dev/null << EOF
@@ -44,6 +44,11 @@ sudo chown root.root ~/install_mysql.sh
 sudo chmod 4755 ~/install_mysql.sh
 
 rm -f -v ~/install_mysql.sh
+
+# wait for mysqld to start
+while ! mysqladmin ping --silent; do
+    sleep 1
+done
 
 # install sakila database
 cd /home/ubuntu

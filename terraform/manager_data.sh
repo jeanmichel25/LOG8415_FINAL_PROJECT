@@ -43,15 +43,15 @@ noofreplicas=3
 datadir=/opt/mysqlcluster/deploy/ndb_data
 
 [ndbd]
-hostname=ip-172-31-45-1.ec2.internal
+hostname=ip-172-31-23-1.ec2.internal
 nodeid=2
 
 [ndbd]
-hostname=ip-172-31-45-2.ec2.internal
+hostname=ip-172-31-23-2.ec2.internal
 nodeid=3
 
 [ndbd]
-hostname=ip-172-31-45-3.ec2.internal
+hostname=ip-172-31-23-3.ec2.internal
 nodeid=4
 
 [mysqld]
@@ -91,6 +91,11 @@ sudo chown root.root ~/install_mysql.sh
 sudo chmod 4755 ~/install_mysql.sh
 
 rm -f -v ~/install_mysql.sh
+
+# wait for mysqld to start
+while ! mysqladmin ping --silent; do
+    sleep 1
+done
 
 # install sakila database
 cd /home/ubuntu
