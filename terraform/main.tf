@@ -41,68 +41,68 @@ resource "aws_security_group" "final_security_group" {
   }
 }
 
-# # create 1 t2.micro standalone instance
-# resource "aws_instance" "t2_standalone" {
+# create 1 t2.micro standalone instance
+resource "aws_instance" "t2_standalone" {
+  count = 1
+  ami = "ami-0fc5d935ebf8bc3bc"
+  vpc_security_group_ids = [aws_security_group.final_security_group.id]
+  instance_type = "t2.micro"
+  user_data = file("standalone_data.sh") # used to run script which deploys docker container on each instance
+  tags = {
+    Name = "t2_standalone"
+  }
+}
+
+# # create 1 t2.micro manager instance
+# resource "aws_instance" "t2_manager" {
 #   count = 1
 #   ami = "ami-0fc5d935ebf8bc3bc"
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.micro"
-#   user_data = file("standalone_data.sh") # used to run script which deploys docker container on each instance
+#   user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
+#   subnet_id = "subnet-087abcd53d89e50ee"
+#   private_ip = "172.31.23.0"
 #   tags = {
-#     Name = "t2_standalone"
+#     Name = "t2_manager"
 #   }
 # }
 
-# create 1 t2.micro manager instance
-resource "aws_instance" "t2_manager" {
-  count = 1
-  ami = "ami-0fc5d935ebf8bc3bc"
-  vpc_security_group_ids = [aws_security_group.final_security_group.id]
-  instance_type = "t2.micro"
-  user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
-  subnet_id = "subnet-087abcd53d89e50ee"
-  private_ip = "172.31.23.0"
-  tags = {
-    Name = "t2_manager"
-  }
-}
+# # create t2.micro worker instances
+# resource "aws_instance" "t2_worker1" {
+#   count = 1
+#   ami = "ami-0fc5d935ebf8bc3bc"
+#   vpc_security_group_ids = [aws_security_group.final_security_group.id]
+#   instance_type = "t2.micro"
+#   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
+#   private_ip = "172.31.23.1"
+#   tags = {
+#     Name = "t2_worker1"
+#   }
+# }
 
-# create t2.micro worker instances
-resource "aws_instance" "t2_worker1" {
-  count = 1
-  ami = "ami-0fc5d935ebf8bc3bc"
-  vpc_security_group_ids = [aws_security_group.final_security_group.id]
-  instance_type = "t2.micro"
-  user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.23.1"
-  tags = {
-    Name = "t2_worker1"
-  }
-}
+# resource "aws_instance" "t2_worker2" {
+#   count = 1
+#   ami = "ami-0fc5d935ebf8bc3bc"
+#   vpc_security_group_ids = [aws_security_group.final_security_group.id]
+#   instance_type = "t2.micro"
+#   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
+#   private_ip = "172.31.23.2"
+#   tags = {
+#     Name = "t2_worker2"
+#   }
+# }
 
-resource "aws_instance" "t2_worker2" {
-  count = 1
-  ami = "ami-0fc5d935ebf8bc3bc"
-  vpc_security_group_ids = [aws_security_group.final_security_group.id]
-  instance_type = "t2.micro"
-  user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.23.2"
-  tags = {
-    Name = "t2_worker2"
-  }
-}
-
-resource "aws_instance" "t2_worker3" {
-  count = 1
-  ami = "ami-0fc5d935ebf8bc3bc"
-  vpc_security_group_ids = [aws_security_group.final_security_group.id]
-  instance_type = "t2.micro"
-  user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.23.3"
-  tags = {
-    Name = "t2_worker3"
-  }
-}
+# resource "aws_instance" "t2_worker3" {
+#   count = 1
+#   ami = "ami-0fc5d935ebf8bc3bc"
+#   vpc_security_group_ids = [aws_security_group.final_security_group.id]
+#   instance_type = "t2.micro"
+#   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
+#   private_ip = "172.31.23.3"
+#   tags = {
+#     Name = "t2_worker3"
+#   }
+# }
 
 # # create 1 t2.large proxy instance
 # resource "aws_instance" "t2_proxy" {
