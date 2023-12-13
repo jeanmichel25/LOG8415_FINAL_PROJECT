@@ -112,54 +112,10 @@ mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film;"
 mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film_text;"
 
 mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-19-0.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-19-1.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-19-2.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-19-3.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 # read write test
-echo "Read-Write Test"
+echo "Read-Write benchmark"
 sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua prepare
 sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua run
 sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua cleanup
 
-# read only test
-echo "Read-Only Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_only.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_only.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_only.lua cleanup
-
-# write only test
-echo "Write-Only Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_write_only.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_write_only.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_write_only.lua cleanup
-
-# insert test
-echo "Insert Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_insert.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_insert.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_insert.lua cleanup
-
-# update index test
-echo "Update Index Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_update_index.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_update_index.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_update_index.lua cleanup
-
-# update non index test
-echo "Update Non-Index Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_update_non_index.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_update_non_index.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_update_non_index.lua cleanup
-
-# point select test
-echo "Point Select Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=1 --events=0 --time=60 /usr/share/sysbench/oltp_point_select.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=1 --events=0 --time=60 /usr/share/sysbench/oltp_point_select.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=1 --events=0 --time=60 /usr/share/sysbench/oltp_point_select.lua cleanup
-
-# delete test
-echo "Delete Test"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_delete.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_delete.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-19-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 /usr/share/sysbench/oltp_delete.lua cleanup
