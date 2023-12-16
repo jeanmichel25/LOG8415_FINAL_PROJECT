@@ -10,5 +10,5 @@ terraform.tfvars
 terraform.tfstate.backup
 *.tfstate
 terraform-provider-aws_v5.19.0_x5.exe
-/orchestrator/credentials.py
-/request/credentials.py
+/proxy/credentials.py
+/gatekeeper/credentials.py

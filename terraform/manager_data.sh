@@ -34,7 +34,7 @@ basedir=/opt/mysqlcluster/home/mysqlc
 port=3306" > my.cnf
 
 echo -e "[ndb_mgmd]
-hostname=ip-172-31-85-0.ec2.internal
+hostname=ip-172-31-25-0.ec2.internal
 datadir=/opt/mysqlcluster/deploy/ndb_data
 nodeid=1
 
@@ -43,15 +43,15 @@ noofreplicas=3
 datadir=/opt/mysqlcluster/deploy/ndb_data
 
 [ndbd]
-hostname=ip-172-31-85-1.ec2.internal
+hostname=ip-172-31-25-1.ec2.internal
 nodeid=2
 
 [ndbd]
-hostname=ip-172-31-85-2.ec2.internal
+hostname=ip-172-31-25-2.ec2.internal
 nodeid=3
 
 [ndbd]
-hostname=ip-172-31-85-3.ec2.internal
+hostname=ip-172-31-25-3.ec2.internal
 nodeid=4
 
 [mysqld]
@@ -111,11 +111,14 @@ mysql -u root -e "USE sakila; SHOW FULL TABLES;"
 mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film;"
 mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film_text;"
 
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-85-0.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-25-0.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-25-1.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-25-2.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-25-3.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 # read write test
 echo "Read-Write benchmark"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-85-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-85-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-85-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua cleanup
+sysbench --db-driver=mysql --mysql-host=ip-172-31-25-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua prepare
+sysbench --db-driver=mysql --mysql-host=ip-172-31-25-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua run
+sysbench --db-driver=mysql --mysql-host=ip-172-31-25-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua cleanup
 

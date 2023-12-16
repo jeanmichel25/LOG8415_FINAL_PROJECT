@@ -21,7 +21,7 @@ sudo apt-get update && sudo apt-get -y install libncurses5
 
 # worker code
 mkdir -p /opt/mysqlcluster/deploy/ndb_data
-ndbd -c ip-172-31-85-0.ec2.internal:1186
+ndbd -c ip-172-31-25-0.ec2.internal:1186
 
 # Secure install mysql
 tee ~/install_mysql.sh > /dev/null << EOF

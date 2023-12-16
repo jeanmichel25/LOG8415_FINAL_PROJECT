@@ -41,6 +41,27 @@ resource "aws_security_group" "final_security_group" {
   }
 }
 
+# # trusted host security group
+# resource "aws_security_group" "trusted_host_security_group" {
+#   name        = "trusted_host_security_group"
+#   vpc_id      = data.aws_vpc.default.id
+  
+#   # Define your security group rules here
+#   ingress {
+#     from_port   = 22 # ssh port. Will need to create an ssh tunnel to access the trusted host
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = ["${aws_instance.t2_gatekeeper.public_ip}/32"] # gatekeeper ip, will only accept requests coming from gatekeeper
+#   }
+
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
+
 # # create 1 t2.micro standalone instance
 # resource "aws_instance" "t2_standalone" {
 #   count = 1
@@ -60,9 +81,9 @@ resource "aws_instance" "t2_manager" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.85.0"
+  private_ip = "172.31.25.0"
   tags = {
-    Name = "t2_manager"
+    Name = "manager"
   }
 }
 
@@ -73,9 +94,9 @@ resource "aws_instance" "t2_worker1" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.85.1"
+  private_ip = "172.31.25.1"
   tags = {
-    Name = "t2_worker1"
+    Name = "worker"
   }
 }
 
@@ -85,9 +106,9 @@ resource "aws_instance" "t2_worker2" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.85.2"
+  private_ip = "172.31.25.2"
   tags = {
-    Name = "t2_worker2"
+    Name = "worker"
   }
 }
 
@@ -97,9 +118,9 @@ resource "aws_instance" "t2_worker3" {
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.85.3"
+  private_ip = "172.31.25.3"
   tags = {
-    Name = "t2_worker3"
+    Name = "worker"
   }
 }
 
@@ -111,7 +132,7 @@ resource "aws_instance" "t2_worker3" {
 #   instance_type = "t2.large"
 #   user_data = file("proxy_data.sh") # used to run script which deploys docker container on each instance
 #   tags = {
-#     Name = "t2_proxy"
+#     Name = "proxy"
 #   }
 # }
 
@@ -123,6 +144,22 @@ resource "aws_instance" "t2_worker3" {
 #   instance_type = "t2.large"
 #   user_data = file("gatekeeper_data.sh") # used to run script which deploys docker container on each instance
 #   tags = {
-#     Name = "t2_gatekeeper"
+#     Name = "gatekeeper"
 #   }
+# }
+
+# # create 1 t2.large instance for the trusted host
+# resource "aws_instance" "t2_trusted_host" {
+#   count = 1
+#   ami = "ami-0fc5d935ebf8bc3bc"
+#   vpc_security_group_ids = [aws_security_group.trusted_host_security_group.id]
+#   instance_type = "t2.large"
+#   user_data = file("trusted_host_data.sh") # used to run script which deploys docker container on each instance
+#   tags = {
+#     Name = "trusted_host"
+#   }
+# }
+
+# output "gatekeeper_public_ip" {
+#   value = aws_instance.t2_gatekeeper.public_ip
 # }
