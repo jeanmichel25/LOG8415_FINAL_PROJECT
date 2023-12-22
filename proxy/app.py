@@ -4,7 +4,7 @@ import time
 import boto3
 import pymysql
 import os
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from sshtunnel import SSHTunnelForwarder
 
 from credentials import *
@@ -25,6 +25,12 @@ def get_manager_ip():
         manager_ip = instance.public_ip_address
     return manager_ip
 
+def get_proxy_ip():
+    proxy = ec2_resource.instances.filter(Filters=[{'Name': 'tag:Name', 'Values': ['proxy']}])
+    for instance in proxy:
+        proxy_ip = instance.public_ip_address
+    return proxy_ip
+
 def get_worker_ips():
     workers = ec2_resource.instances.filter(Filters=[{'Name': 'tag:Name', 'Values': ['worker']}])
     worker_ips = []
@@ -34,26 +40,28 @@ def get_worker_ips():
 
 def send_request(worker_ip, query):
     manager_ip = get_manager_ip()
-    with SSHTunnelForwarder(worker_ip, ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306)) as tunnel:
+    proxy_ip = get_proxy_ip()
+    with SSHTunnelForwarder((worker_ip, 22), ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306), local_bind_address=(proxy_ip, 9000)) as tunnel:
         connection = pymysql.connect(host=manager_ip, port=3306, user='root', password='', db='sakila')
         cursor = connection.cursor()
         cursor.execute(query)
         data = cursor.fetchall()
-        connection.close()
-        return data
+        print(data)
+        return connection
 
 def direct_hit(query):
     # send sql request to manager instance
     manager_ip = get_manager_ip()
-    return send_request(manager_ip, query)
+    send_request(manager_ip, query)
+    return (f"Sending request to manager, ip: {manager_ip}")
     
 
 def send_request_to_random_worker(query):
-    print("Sending request to random worker")
     worker_ips = get_worker_ips()
     random_worker_ip = random.choice(worker_ips)
     # send sql request to random worker instance
-    return send_request(random_worker_ip, query)
+    send_request(random_worker_ip, query)
+    return (f"Sending request to random worker, ip: {random_worker_ip}")
 
 def ping(ip):
     # ping the instance and return true if it is up, false otherwise.
@@ -88,33 +96,30 @@ def get_fastest_ping():
 # send request to instance with smallest ping
 def customized(query):
     min_ping_ip = get_fastest_ping()
-    print("Sending request to instance with fastest ping: {min_ping_ip}")
-    return send_request(min_ping_ip, query)
+    send_request(min_ping_ip, query)
+    return (f"Sending request to instance with fastest ping: {min_ping_ip}")
 
 @app.route('/')
 def default():
     return "Hello World!"
 
-@app.route('/direct')
+@app.route('/direct', methods=['GET'])
 def direct():
     query = request.args.get('query')
     answer = direct_hit(query)
-    print(answer)
     return answer
 
-@app.route('/random')
+@app.route('/random', methods=['GET'])
 def random_hit():
     query = request.args.get('query')
     answer = send_request_to_random_worker(query)
-    print(answer)
     return answer
 
-@app.route('/customized')
+@app.route('/customized', methods=['GET'])
 def custom_hit():
     query = request.args.get('query')
     answer = customized(query)
-    print(answer)
     return answer
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=5000)
+    app.run(host='0.0.0.0', port=5000)

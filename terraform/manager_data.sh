@@ -111,10 +111,7 @@ mysql -u root -e "USE sakila; SHOW FULL TABLES;"
 mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film;"
 mysql -u root -e "USE sakila; SELECT COUNT(*) FROM film_text;"
 
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-88-0.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-88-1.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-88-2.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'ip-172-31-88-3.ec2.internal' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 # read write test
 echo "Read-Write benchmark"

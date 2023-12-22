@@ -132,18 +132,18 @@ resource "aws_instance" "t2_worker3" {
   }
 }
 
-# # create 1 t2.large proxy instance
-# resource "aws_instance" "t2_proxy" {
-#   count = 1
-#   ami = "ami-0fc5d935ebf8bc3bc"
-#   vpc_security_group_ids = [aws_security_group.final_security_group.id]
-#   instance_type = "t2.large"
-#   key_name = "final_project_kp"
-#   user_data = file("proxy_data.sh") # used to run script which deploys docker container on each instance
-#   tags = {
-#     Name = "proxy"
-#   }
-# }
+# create 1 t2.large proxy instance
+resource "aws_instance" "t2_proxy" {
+  count = 1
+  ami = "ami-0fc5d935ebf8bc3bc"
+  vpc_security_group_ids = [aws_security_group.final_security_group.id]
+  instance_type = "t2.large"
+  key_name = "final_project_kp"
+  user_data = file("proxy_data.sh") # used to run script which deploys docker container on each instance
+  tags = {
+    Name = "proxy"
+  }
+}
 
 # # create 1 t2.large gatekeeper instance
 # resource "aws_instance" "t2_gatekeeper" {
