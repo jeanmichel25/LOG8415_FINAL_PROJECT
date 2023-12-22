@@ -172,3 +172,19 @@ resource "aws_instance" "t2_proxy" {
 # output "gatekeeper_public_ip" {
 #   value = aws_instance.t2_gatekeeper.public_ip
 # }
+
+output "manager_public_ip" {
+  value = aws_instance.t2_manager[0].public_ip
+}
+
+output "worker1_public_ip" {
+  value = aws_instance.t2_worker1[0].public_ip
+}
+
+output "worker2_public_ip" {
+  value = aws_instance.t2_worker2[0].public_ip
+}
+
+output "worker3_public_ip" {
+  value = aws_instance.t2_worker3[0].public_ip
+}

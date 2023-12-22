@@ -20,19 +20,23 @@ session = boto3.Session(
 ec2_resource = session.resource('ec2')
 
 def get_manager_ip():
-    manager = ec2_resource.instances.filter(Filters=[{'Name': 'tag:Name', 'Values': ['manager']}])
+    manager = ec2_resource.instances.filter(
+        Filters=[
+            {'Name': 'instance-state-name', 'Values': ['running']},
+            {'Name': 'tag:Name', 'Values': ['manager']}
+        ]
+    )
     for instance in manager:
         manager_ip = instance.public_ip_address
     return manager_ip
 
-def get_proxy_ip():
-    proxy = ec2_resource.instances.filter(Filters=[{'Name': 'tag:Name', 'Values': ['proxy']}])
-    for instance in proxy:
-        proxy_ip = instance.public_ip_address
-    return proxy_ip
 
 def get_worker_ips():
-    workers = ec2_resource.instances.filter(Filters=[{'Name': 'tag:Name', 'Values': ['worker']}])
+    workers = ec2_resource.instances.filter(Filters=[
+            {'Name': 'instance-state-name', 'Values': ['running']},
+            {'Name': 'tag:Name', 'Values': ['worker']}        
+        ]
+    )
     worker_ips = []
     for worker in workers:
         worker_ips.append(worker.public_ip_address)
@@ -40,8 +44,7 @@ def get_worker_ips():
 
 def send_request(worker_ip, query):
     manager_ip = get_manager_ip()
-    proxy_ip = get_proxy_ip()
-    with SSHTunnelForwarder((worker_ip, 22), ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306), local_bind_address=(proxy_ip, 9000)) as tunnel:
+    with SSHTunnelForwarder((worker_ip, 22), ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306)) as tunnel:
         connection = pymysql.connect(host=manager_ip, port=3306, user='root', password='', db='sakila')
         cursor = connection.cursor()
         cursor.execute(query)
