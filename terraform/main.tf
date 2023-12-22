@@ -80,8 +80,10 @@ resource "aws_instance" "t2_manager" {
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
+  availability_zone = "us-east-1d"
   user_data = file("manager_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.25.0"
+  private_ip = "172.31.88.0"
+  key_name = "final_project_kp"
   tags = {
     Name = "manager"
   }
@@ -93,8 +95,10 @@ resource "aws_instance" "t2_worker1" {
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
+  availability_zone = "us-east-1d"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.25.1"
+  private_ip = "172.31.88.1"
+  key_name = "final_project_kp"
   tags = {
     Name = "worker"
   }
@@ -105,8 +109,10 @@ resource "aws_instance" "t2_worker2" {
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
+  availability_zone = "us-east-1d"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.25.2"
+  private_ip = "172.31.88.2"
+  key_name = "final_project_kp"
   tags = {
     Name = "worker"
   }
@@ -117,8 +123,10 @@ resource "aws_instance" "t2_worker3" {
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.micro"
+  availability_zone = "us-east-1d"
   user_data = file("worker_data.sh") # used to run script which deploys docker container on each instance
-  private_ip = "172.31.25.3"
+  private_ip = "172.31.88.3"
+  key_name = "final_project_kp"
   tags = {
     Name = "worker"
   }
@@ -130,6 +138,7 @@ resource "aws_instance" "t2_worker3" {
 #   ami = "ami-0fc5d935ebf8bc3bc"
 #   vpc_security_group_ids = [aws_security_group.final_security_group.id]
 #   instance_type = "t2.large"
+#   key_name = "final_project_kp"
 #   user_data = file("proxy_data.sh") # used to run script which deploys docker container on each instance
 #   tags = {
 #     Name = "proxy"

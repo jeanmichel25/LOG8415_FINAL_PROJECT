@@ -4,10 +4,12 @@ import time
 import boto3
 import pymysql
 import os
-import sys
+from flask import Flask, request
 from sshtunnel import SSHTunnelForwarder
 
 from credentials import *
+
+app = Flask(__name__)
 
 session = boto3.Session(
     aws_access_key_id = access_key,
@@ -32,7 +34,7 @@ def get_worker_ips():
 
 def send_request(worker_ip, query):
     manager_ip = get_manager_ip()
-    with SSHTunnelForwarder(worker_ip, ssh_username='ubuntu', ssh_pkey='vockey.pem', remote_bind_address=(manager_ip, 3306)) as tunnel:
+    with SSHTunnelForwarder(worker_ip, ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306)) as tunnel:
         connection = pymysql.connect(host=manager_ip, port=3306, user='root', password='', db='sakila')
         cursor = connection.cursor()
         cursor.execute(query)
@@ -89,16 +91,30 @@ def customized(query):
     print("Sending request to instance with fastest ping: {min_ping_ip}")
     return send_request(min_ping_ip, query)
 
-if __name__ == "__main__":
-    req_type = sys.argv[1]
-    query = sys.argv[2]
-    answer = ""
+@app.route('/')
+def default():
+    return "Hello World!"
 
-    if req_type == "direct":
-        answer = direct_hit(query)
-    elif req_type == "random":
-        answer = send_request_to_random_worker(query)
-    elif req_type == "customized":
-        answer = customized(query)
-
+@app.route('/direct')
+def direct():
+    query = request.args.get('query')
+    answer = direct_hit(query)
     print(answer)
+    return answer
+
+@app.route('/random')
+def random_hit():
+    query = request.args.get('query')
+    answer = send_request_to_random_worker(query)
+    print(answer)
+    return answer
+
+@app.route('/customized')
+def custom_hit():
+    query = request.args.get('query')
+    answer = customized(query)
+    print(answer)
+    return answer
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0',port=5000)
