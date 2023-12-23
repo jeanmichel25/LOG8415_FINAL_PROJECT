@@ -150,6 +150,7 @@ resource "aws_instance" "t2_gatekeeper" {
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
   instance_type = "t2.large"
+  key_name = "final_project_kp"
   user_data = file("gatekeeper_data.sh") # used to run script which deploys docker container on each instance
   tags = {
     Name = "gatekeeper"
@@ -162,6 +163,7 @@ resource "aws_instance" "t2_trusted_host" {
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.trusted_host_security_group.id]
   instance_type = "t2.large"
+  key_name = "final_project_kp"
   user_data = file("trusted_host_data.sh") # used to run script which deploys docker container on each instance
   tags = {
     Name = "trusted_host"

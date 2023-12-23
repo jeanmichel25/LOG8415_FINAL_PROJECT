@@ -1,0 +1,4 @@
+requests
+paramiko
+boto3
+flask
