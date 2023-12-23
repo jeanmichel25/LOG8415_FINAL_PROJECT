@@ -41,26 +41,25 @@ resource "aws_security_group" "final_security_group" {
   }
 }
 
-# # trusted host security group
-# resource "aws_security_group" "trusted_host_security_group" {
-#   name        = "trusted_host_security_group"
-#   vpc_id      = data.aws_vpc.default.id
+# trusted host security group
+resource "aws_security_group" "trusted_host_security_group" {
+  name        = "trusted_host_security_group"
+  vpc_id      = data.aws_vpc.default.id
   
-#   # Define your security group rules here
-#   ingress {
-#     from_port   = 22 # ssh port. Will need to create an ssh tunnel to access the trusted host
-#     to_port     = 22
-#     protocol    = "tcp"
-#     cidr_blocks = ["${aws_instance.t2_gatekeeper.public_ip}/32"] # gatekeeper ip, will only accept requests coming from gatekeeper
-#   }
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["${aws_instance.t2_gatekeeper[0].public_ip}/32"] # gatekeeper ip, will only accept requests coming from gatekeeper
+  }
 
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 # # create 1 t2.micro standalone instance
 # resource "aws_instance" "t2_standalone" {
@@ -145,33 +144,37 @@ resource "aws_instance" "t2_proxy" {
   }
 }
 
-# # create 1 t2.large gatekeeper instance
-# resource "aws_instance" "t2_gatekeeper" {
-#   count = 1
-#   ami = "ami-0fc5d935ebf8bc3bc"
-#   vpc_security_group_ids = [aws_security_group.final_security_group.id]
-#   instance_type = "t2.large"
-#   user_data = file("gatekeeper_data.sh") # used to run script which deploys docker container on each instance
-#   tags = {
-#     Name = "gatekeeper"
-#   }
-# }
+# create 1 t2.large gatekeeper instance
+resource "aws_instance" "t2_gatekeeper" {
+  count = 1
+  ami = "ami-0fc5d935ebf8bc3bc"
+  vpc_security_group_ids = [aws_security_group.final_security_group.id]
+  instance_type = "t2.large"
+  user_data = file("gatekeeper_data.sh") # used to run script which deploys docker container on each instance
+  tags = {
+    Name = "gatekeeper"
+  }
+}
 
-# # create 1 t2.large instance for the trusted host
-# resource "aws_instance" "t2_trusted_host" {
-#   count = 1
-#   ami = "ami-0fc5d935ebf8bc3bc"
-#   vpc_security_group_ids = [aws_security_group.trusted_host_security_group.id]
-#   instance_type = "t2.large"
-#   user_data = file("trusted_host_data.sh") # used to run script which deploys docker container on each instance
-#   tags = {
-#     Name = "trusted_host"
-#   }
-# }
+# create 1 t2.large instance for the trusted host
+resource "aws_instance" "t2_trusted_host" {
+  count = 1
+  ami = "ami-0fc5d935ebf8bc3bc"
+  vpc_security_group_ids = [aws_security_group.trusted_host_security_group.id]
+  instance_type = "t2.large"
+  user_data = file("trusted_host_data.sh") # used to run script which deploys docker container on each instance
+  tags = {
+    Name = "trusted_host"
+  }
+}
 
-# output "gatekeeper_public_ip" {
-#   value = aws_instance.t2_gatekeeper.public_ip
-# }
+output "proxy_public_ip" {
+  value = aws_instance.t2_proxy[0].public_ip
+}
+
+output "gatekeeper_public_ip" {
+  value = aws_instance.t2_gatekeeper[0].public_ip
+}
 
 output "manager_public_ip" {
   value = aws_instance.t2_manager[0].public_ip

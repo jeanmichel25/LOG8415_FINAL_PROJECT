@@ -49,22 +49,24 @@ def send_request(worker_ip, query):
         cursor = connection.cursor()
         cursor.execute(query)
         data = cursor.fetchall()
-        print(data)
-        return connection
+        connection.close()
+        return data
 
 def direct_hit(query):
     # send sql request to manager instance
     manager_ip = get_manager_ip()
-    send_request(manager_ip, query)
-    return (f"Sending request to manager, ip: {manager_ip}")
+    data = send_request(manager_ip, query)
+    print(f"Sending request to manager, ip: {manager_ip}")
+    return data
     
 
 def send_request_to_random_worker(query):
     worker_ips = get_worker_ips()
     random_worker_ip = random.choice(worker_ips)
     # send sql request to random worker instance
-    send_request(random_worker_ip, query)
-    return (f"Sending request to random worker, ip: {random_worker_ip}")
+    data = send_request(random_worker_ip, query)
+    print(f"Sending request to random worker, ip: {random_worker_ip}")
+    return data
 
 def ping(ip):
     # ping the instance and return true if it is up, false otherwise.
@@ -99,8 +101,9 @@ def get_fastest_ping():
 # send request to instance with smallest ping
 def customized(query):
     min_ping_ip = get_fastest_ping()
-    send_request(min_ping_ip, query)
-    return (f"Sending request to instance with fastest ping: {min_ping_ip}")
+    data = send_request(min_ping_ip, query)
+    print(f"Sending request to instance with fastest ping: {min_ping_ip}")
+    return data
 
 @app.route('/')
 def default():
@@ -110,19 +113,19 @@ def default():
 def direct():
     query = request.args.get('query')
     answer = direct_hit(query)
-    return answer
+    return jsonify(answer)
 
 @app.route('/random', methods=['GET'])
 def random_hit():
     query = request.args.get('query')
     answer = send_request_to_random_worker(query)
-    return answer
+    return jsonify(answer)
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
     query = request.args.get('query')
     answer = customized(query)
-    return answer
+    return jsonify(answer)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

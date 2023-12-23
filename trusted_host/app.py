@@ -14,16 +14,16 @@ session = boto3.Session(
 )
 ec2_resource = session.resource('ec2')
 
-def get_trusted_host_dns():
-    trusted_host = ec2_resource.instances.filter(
+def get_proxy_dns():
+    proxy = ec2_resource.instances.filter(
         Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']},
-            {'Name': 'tag:Name', 'Values': ['trusted_host']}
+            {'Name': 'tag:Name', 'Values': ['proxy']}
         ]
     )
-    for instance in trusted_host:
-        trusted_host_ip = instance.public_ip_address
-    dns = "http://" + trusted_host_ip
+    for instance in proxy:
+        proxy_ip = instance.public_ip_address
+    dns = "http://" + proxy_ip
     return dns
 
 @app.route('/')
@@ -33,7 +33,7 @@ def default():
 @app.route('/direct', methods=['GET'])
 def direct():
     query = request.args.get('query')
-    dns = get_trusted_host_dns()
+    dns = get_proxy_dns()
     res = requests.get(f"{dns}/direct?query={query}")
     print(res)
     return res.text
@@ -41,7 +41,7 @@ def direct():
 @app.route('/random', methods=['GET'])
 def random_hit():
     query = request.args.get('query')
-    dns = get_trusted_host_dns()
+    dns = get_proxy_dns()
     res = requests.get(f"{dns}/random?query={query}")
     print(res)
     return res.text
@@ -49,7 +49,7 @@ def random_hit():
 @app.route('/customized', methods=['GET'])
 def custom_hit():
     query = request.args.get('query')
-    dns = get_trusted_host_dns()
+    dns = get_proxy_dns()
     res = requests.get(f"{dns}/customized?query={query}")
     return res.text
 

@@ -22,6 +22,6 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # get our dockerfile to run the container
-sudo docker pull jeanmichel25/proxy
+sudo docker pull jeanmichel25/trusted_host
 
-sudo docker run -p 80:5000 jeanmichel25/proxy
+sudo docker run -p 80:5000 jeanmichel25/trusted_host

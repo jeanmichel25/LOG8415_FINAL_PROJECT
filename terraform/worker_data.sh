@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec > /home/ubuntu/startup.log 2>&1
+exec > /home/ubuntu/startup.log 2>&1 # tail -f startup.log
 
 sudo apt-get update
 sudo apt-get install -y unzip expect sysbench
