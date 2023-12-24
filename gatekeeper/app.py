@@ -1,6 +1,5 @@
-# from sshtunnel import SSHTunnelForwarder
-from sshtunnel import SSHTunnelForwarder
 import requests
+from sshtunnel import SSHTunnelForwarder
 import boto3
 from flask import Flask, request
 
@@ -20,6 +19,7 @@ def format_ip(ip_address):
     formatted = ip_address.replace(".", "-")
     return f"ec2-{formatted}.compute-1.amazonaws.com"
 
+
 def get_trusted_host_ip():
     trusted_host = ec2_resource.instances.filter(
         Filters=[
@@ -37,11 +37,11 @@ def send_request(trusted_host_ip, req_type, query):
         (trusted_host_dns, 22), 
         ssh_username='ubuntu', 
         ssh_pkey='final_project_kp.pem', 
-        remote_bind_address=(trusted_host_dns, 9000),
+        remote_bind_address=(trusted_host_dns, 80),
         local_bind_address=("127.0.0.1", 80)
     ) as tunnel:
         response = requests.get(f'http://{trusted_host_dns}/{req_type}?query={query}')
-        return response.text
+        return response
 
 @app.route('/')
 def default():
@@ -50,23 +50,23 @@ def default():
 @app.route('/direct', methods=['GET'])
 def direct():
     query = request.args.get('query')
-    res = send_request(get_trusted_host_ip(), 'direct', query)
-    print(res)
-    return res
+    trusted_host_ip = get_trusted_host_ip()
+    response = send_request(trusted_host_ip, 'direct', query)
+    return response.text
 
 @app.route('/random', methods=['GET'])
 def random_hit():
     query = request.args.get('query')
-    res = send_request(get_trusted_host_ip(), 'random', query)
-    print(res)
-    return res
+    trusted_host_ip = get_trusted_host_ip()
+    response = send_request(trusted_host_ip, 'random', query)
+    return response.text
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
     query = request.args.get('query')
-    res = send_request(get_trusted_host_ip(), 'customized', query)
-    print(res)
-    return res
+    trusted_host_ip = get_trusted_host_ip()
+    response = send_request(trusted_host_ip, 'customized', query)
+    return response.text
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

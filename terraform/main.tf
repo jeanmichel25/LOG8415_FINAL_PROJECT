@@ -50,7 +50,14 @@ resource "aws_security_group" "trusted_host_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${aws_instance.t2_gatekeeper[0].public_ip}/32"] # gatekeeper ip, will only accept requests coming from gatekeeper
+    cidr_blocks = ["172.31.88.10/32"] # gatekeeper ip, will only accept requests coming from gatekeeper
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["172.31.88.10/32"]
   }
 
   egress {
@@ -60,6 +67,7 @@ resource "aws_security_group" "trusted_host_security_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 # create 1 t2.micro standalone instance
 resource "aws_instance" "t2_standalone" {
@@ -149,8 +157,10 @@ resource "aws_instance" "t2_gatekeeper" {
   count = 1
   ami = "ami-0fc5d935ebf8bc3bc"
   vpc_security_group_ids = [aws_security_group.final_security_group.id]
+  availability_zone = "us-east-1d"
   instance_type = "t2.large"
   key_name = "final_project_kp"
+  private_ip = "172.31.88.10"
   user_data = file("gatekeeper_data.sh") # used to run script which deploys docker container on each instance
   tags = {
     Name = "gatekeeper"
