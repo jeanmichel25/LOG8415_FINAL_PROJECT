@@ -24,6 +24,6 @@ sudo mysql -e "USE sakila; SELECT COUNT(*) FROM film_text;"
 
 # read write test
 echo "Read-Write Test"
-sudo sysbench --db-driver=mysql --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua prepare
-sudo sysbench --db-driver=mysql --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua run
-sudo sysbench --db-driver=mysql --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua cleanup
+sudo sysbench /usr/share/sysbench/oltp_read_write.lua prepare --db-driver=mysql --mysql-db=sakila --mysql-user=root --mysql-password --table-size=1000000 
+sudo sysbench /usr/share/sysbench/oltp_read_write.lua run --db-driver=mysql --mysql-db=sakila --mysql-user=root --mysql-password --table-size=1000000 --threads=6 --time=60 --events=0
+sudo sysbench /usr/share/sysbench/oltp_read_write.lua cleanup --db-driver=mysql --mysql-db=sakila --mysql-user=root --mysql-password --table-size=1000000 --threads=6 --time=60 --events=0

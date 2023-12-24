@@ -115,7 +115,6 @@ mysql -u root -e "GRANT ALL PRIVILEGES ON sakila.* TO 'root'@'%' WITH GRANT OPTI
 
 # read write test
 echo "Read-Write benchmark"
-sysbench --db-driver=mysql --mysql-host=ip-172-31-88-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua prepare
-sysbench --db-driver=mysql --mysql-host=ip-172-31-88-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua run
-sysbench --db-driver=mysql --mysql-host=ip-172-31-88-0.ec2.internal --mysql_storage_engine=ndbcluster --mysql-user=root --mysql-db=sakila --table_size=10000 --threads=6 --events=0 --time=60 --rand-type=uniform /usr/share/sysbench/oltp_read_write.lua cleanup
-
+sudo sysbench /usr/share/sysbench/oltp_read_write.lua prepare --db-driver=mysql --mysql-host=ip-172-31-88-0.ec2.internal --mysql-db=sakila --mysql-user=root --mysql-password --table-size=1000000 
+sudo sysbench /usr/share/sysbench/oltp_read_write.lua run --db-driver=mysql --mysql-host=ip-172-31-88-0.ec2.internal --mysql-db=sakila --mysql-user=root --mysql-password --table-size=1000000 --threads=6 --time=60 --events=0
+sudo sysbench /usr/share/sysbench/oltp_read_write.lua cleanup --db-driver=mysql --mysql-host=ip-172-31-88-0.ec2.internal --mysql-db=sakila --mysql-user=root --mysql-password --table-size=1000000 --threads=6 --time=60 --events=0
