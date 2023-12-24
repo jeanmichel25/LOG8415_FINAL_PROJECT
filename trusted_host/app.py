@@ -37,7 +37,7 @@ def send_request(proxy_ip, req_type, query):
         (proxy_dns, 22), 
         ssh_username='ubuntu', 
         ssh_pkey='final_project_kp.pem', 
-        remote_bind_address=(proxy_dns, 9000),
+        remote_bind_address=(proxy_dns, 80),
         local_bind_address=("127.0.0.1", 80)
     ) as tunnel:
         response = requests.get(f'http://{proxy_dns}/{req_type}?query={query}')
