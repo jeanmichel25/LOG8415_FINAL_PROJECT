@@ -16,11 +16,26 @@ session = boto3.Session(
 ec2_resource = session.resource('ec2')
 
 def format_ip(ip_address):
+    """
+    Formats the given IP address to be used in an EC2 hostname.
+
+    Args:
+        ip_address (str): The IP address to format.
+
+    Returns:
+        str: The formatted hostname.
+    """
     formatted = ip_address.replace(".", "-")
     return f"ec2-{formatted}.compute-1.amazonaws.com"
 
 
 def get_proxy_ip():
+    """
+    Retrieves the IP address of the proxy.
+
+    Returns:
+        str: The IP address of the proxy.
+    """
     proxy = ec2_resource.instances.filter(
         Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']},
@@ -32,6 +47,17 @@ def get_proxy_ip():
     return proxy_ip
 
 def send_request(proxy_ip, req_type, query):
+    """
+    Sends a request to the proxy.
+
+    Args:
+        proxy_ip (str): The IP address of the proxy.
+        req_type (str): The type of request to send.
+        query (str): The query to send with the request.
+
+    Returns:
+        Response: The response from the proxy.
+    """
     proxy_dns = format_ip(proxy_ip)
     with SSHTunnelForwarder(
         (proxy_dns, 22), 
@@ -45,25 +71,52 @@ def send_request(proxy_ip, req_type, query):
 
 @app.route('/')
 def default():
+    """
+    The default route that returns a greeting.
+
+    Returns:
+        str: A greeting message.
+    """
     return "Hello World!"
 
 @app.route('/direct', methods=['GET'])
 def direct():
+    """
+    The route for direct requests.
+
+    Returns:
+        str: The response text from the proxy.
+    """
     query = request.args.get('query')
     res = send_request(get_proxy_ip(), 'direct', query)
     return res
 
 @app.route('/random', methods=['GET'])
 def random_hit():
+    """
+    The route which sends requests to a random worker node.
+
+    Returns:
+        str: The response text from the trusted host.
+    """
     query = request.args.get('query')
     res = send_request(get_proxy_ip(), 'random', query)
     return res
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
+    """
+    The route which sends the request to the fastest worker node.
+
+    Returns:
+        str: The response text from the trusted host.
+    """
     query = request.args.get('query')
     res = send_request(get_proxy_ip(), 'customized', query)
     return res
 
 if __name__ == "__main__":
+    """
+    The main entry point for the application.
+    """
     app.run(host='0.0.0.0', port=5000)

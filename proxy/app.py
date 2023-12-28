@@ -20,6 +20,12 @@ session = boto3.Session(
 ec2_resource = session.resource('ec2')
 
 def get_manager_ip():
+    """
+    Retrieves the IP address of the manager instance.
+
+    Returns:
+        str: The IP address of the manager instance.
+    """
     manager = ec2_resource.instances.filter(
         Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']},
@@ -32,6 +38,12 @@ def get_manager_ip():
 
 
 def get_worker_ips():
+    """
+    Retrieves the IP addresses of the worker instances.
+
+    Returns:
+        list: The IP addresses of the worker instances.
+    """
     workers = ec2_resource.instances.filter(Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']},
             {'Name': 'tag:Name', 'Values': ['worker']}        
@@ -43,6 +55,16 @@ def get_worker_ips():
     return worker_ips
 
 def send_request(worker_ip, query):
+    """
+    Sends a request to the worker instance.
+
+    Args:
+        worker_ip (str): The IP address of the worker instance.
+        query (str): The query to send with the request.
+
+    Returns:
+        tuple: The response from the worker instance.
+    """
     manager_ip = get_manager_ip()
     with SSHTunnelForwarder((worker_ip, 22), ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306)) as tunnel:
         connection = pymysql.connect(host=manager_ip, port=3306, user='root', password='', db='sakila')
@@ -53,7 +75,15 @@ def send_request(worker_ip, query):
         return data
 
 def direct_hit(query):
-    # send sql request to manager instance
+    """
+    Sends a SQL request to the manager instance.
+
+    Args:
+        query (str): The SQL query to send.
+
+    Returns:
+        tuple: The response from the manager instance.
+    """
     manager_ip = get_manager_ip()
     data = send_request(manager_ip, query)
     print(f"Sending request to manager, ip: {manager_ip}")
@@ -61,32 +91,59 @@ def direct_hit(query):
     
 
 def send_request_to_random_worker(query):
+    """
+    Sends a SQL request to a random worker instance.
+
+    Args:
+        query (str): The SQL query to send.
+
+    Returns:
+        tuple: The response from the worker instance.
+    """
     worker_ips = get_worker_ips()
     random_worker_ip = random.choice(worker_ips)
-    # send sql request to random worker instance
     data = send_request(random_worker_ip, query)
     print(f"Sending request to random worker, ip: {random_worker_ip}")
     return data
 
 def ping(ip):
-    # ping the instance and return true if it is up, false otherwise.
+    """
+    Pings the instance and returns true if it is up, false otherwise.
+
+    Args:
+        ip (str): The IP address of the instance.
+
+    Returns:
+        bool: True if the instance is up, False otherwise.
+    """
     return os.system("ping -c 1 " + ip) == 0
 
 def ping_time(ip):
-    # measure the time it takes to ping the instance
+    """
+    Measures the time it takes to ping the instance.
+
+    Args:
+        ip (str): The IP address of the instance.
+
+    Returns:
+        float: The time it takes to ping the instance.
+    """
     start = time.time()
     result = ping(ip)
     duration = time.time() - start
 
     if result:
-        # the instance is up
         return duration
     else:
-        # the instance is not responding
         return math.inf
 
-# measure the ping of each instance and return the instance with the smallest ping
 def get_fastest_ping():
+    """
+    Measures the ping of each instance and returns the instance with the smallest ping.
+
+    Returns:
+        str: The IP address of the instance with the smallest ping.
+    """
     print("Getting fastest ping...")
     worker_ips = get_worker_ips()
     min_ping = math.inf
@@ -98,8 +155,16 @@ def get_fastest_ping():
             min_ping_ip = ip
     return min_ping_ip
 
-# send request to instance with smallest ping
 def customized(query):
+    """
+    Sends a SQL request to the instance with the smallest ping.
+
+    Args:
+        query (str): The SQL query to send.
+
+    Returns:
+        tuple: The response from the instance.
+    """
     min_ping_ip = get_fastest_ping()
     data = send_request(min_ping_ip, query)
     print(f"Sending request to instance with fastest ping: {min_ping_ip}")
@@ -107,25 +172,52 @@ def customized(query):
 
 @app.route('/')
 def default():
+    """
+    The default route that returns a greeting.
+
+    Returns:
+        str: A greeting message.
+    """
     return "Hello World!"
 
 @app.route('/direct', methods=['GET'])
 def direct():
+    """
+    The route for direct requests. Calls the direct_hit function which sends a SQL request to the manager instance.
+
+    Returns:
+        json: The response from the manager instance.
+    """
     query = request.args.get('query')
     answer = direct_hit(query)
     return jsonify(answer)
 
 @app.route('/random', methods=['GET'])
 def random_hit():
+    """
+    The route for random requests. Calls the send_request_to_random_worker function which sends a SQL request to a random worker instance.
+
+    Returns:
+        json: The response from a random worker instance.
+    """
     query = request.args.get('query')
     answer = send_request_to_random_worker(query)
     return jsonify(answer)
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
+    """
+    The route for customized requests. Calls the customized function which sends a SQL request to the instance with the smallest ping.
+
+    Returns:
+        json: The response from the instance with the smallest ping.
+    """
     query = request.args.get('query')
     answer = customized(query)
     return jsonify(answer)
 
 if __name__ == "__main__":
+    """
+    The main entry point for the application.
+    """
     app.run(host='0.0.0.0', port=5000)
