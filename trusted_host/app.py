@@ -58,7 +58,8 @@ def send_request(proxy_ip, req_type, query):
     Returns:
         Response: The response from the proxy.
     """
-    proxy_dns = format_ip(proxy_ip)
+    proxy_dns = format_ip(proxy_ip) # format the IP address to be in dns format
+    # create a tunnel to the proxy
     with SSHTunnelForwarder(
         (proxy_dns, 22), 
         ssh_username='ubuntu', 
@@ -67,7 +68,7 @@ def send_request(proxy_ip, req_type, query):
         local_bind_address=("127.0.0.1", 80)
     ) as tunnel:
         response = requests.get(f'http://{proxy_dns}/{req_type}?query={query}')
-        return response.text
+        return response.text # response converted to text
 
 @app.route('/')
 def default():
@@ -89,7 +90,7 @@ def direct():
     """
     query = request.args.get('query')
     res = send_request(get_proxy_ip(), 'direct', query)
-    return res
+    return res # response from the proxy, which is the response from the query
 
 @app.route('/random', methods=['GET'])
 def random_hit():
@@ -101,7 +102,7 @@ def random_hit():
     """
     query = request.args.get('query')
     res = send_request(get_proxy_ip(), 'random', query)
-    return res
+    return res # response from the proxy, which is the response from the query
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
@@ -113,7 +114,7 @@ def custom_hit():
     """
     query = request.args.get('query')
     res = send_request(get_proxy_ip(), 'customized', query)
-    return res
+    return res # response from the proxy, which is the response from the query
 
 if __name__ == "__main__":
     """

@@ -66,12 +66,14 @@ def send_request(worker_ip, query):
         tuple: The response from the worker instance.
     """
     manager_ip = get_manager_ip()
+    # Establish an SSH tunnel to the worker instance
     with SSHTunnelForwarder((worker_ip, 22), ssh_username='ubuntu', ssh_pkey='final_project_kp.pem', remote_bind_address=(manager_ip, 3306)) as tunnel:
+        # Connect to the MySQL database on the manager instance
         connection = pymysql.connect(host=manager_ip, port=3306, user='root', password='', db='sakila')
         cursor = connection.cursor()
-        cursor.execute(query)
-        data = cursor.fetchall()
-        connection.close()
+        cursor.execute(query) # Execute the SQL query
+        data = cursor.fetchall() # Fetch all the rows from the result of the query
+        connection.close() # Close the database connection
         return data
 
 def direct_hit(query):
@@ -152,7 +154,7 @@ def get_fastest_ping():
         ping = ping_time(ip)
         if ping < min_ping:
             min_ping = ping
-            min_ping_ip = ip
+            min_ping_ip = ip # updates the ip with the smallest ping
     return min_ping_ip
 
 def customized(query):
@@ -190,7 +192,7 @@ def direct():
     """
     query = request.args.get('query')
     answer = direct_hit(query)
-    return jsonify(answer)
+    return jsonify(answer) # response from the query converted to json
 
 @app.route('/random', methods=['GET'])
 def random_hit():
@@ -202,7 +204,7 @@ def random_hit():
     """
     query = request.args.get('query')
     answer = send_request_to_random_worker(query)
-    return jsonify(answer)
+    return jsonify(answer) # response from the query converted to json
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
@@ -214,7 +216,7 @@ def custom_hit():
     """
     query = request.args.get('query')
     answer = customized(query)
-    return jsonify(answer)
+    return jsonify(answer) # response from the query converted to json
 
 if __name__ == "__main__":
     """

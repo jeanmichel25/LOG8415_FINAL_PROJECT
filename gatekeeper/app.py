@@ -58,7 +58,8 @@ def send_request(trusted_host_ip, req_type, query):
     Returns:
         Response: The response from the trusted host.
     """
-    trusted_host_dns = format_ip(trusted_host_ip)
+    trusted_host_dns = format_ip(trusted_host_ip) # format the IP address to be in dns format
+    # create a tunnel to the trusted host
     with SSHTunnelForwarder(
         (trusted_host_dns, 22), 
         ssh_username='ubuntu', 
@@ -90,7 +91,7 @@ def direct():
     query = request.args.get('query')
     trusted_host_ip = get_trusted_host_ip()
     response = send_request(trusted_host_ip, 'direct', query)
-    return response.text
+    return response.text # response from the trusted host, which is the response from the query. Converted to text.
 
 @app.route('/random', methods=['GET'])
 def random_hit():
@@ -103,7 +104,7 @@ def random_hit():
     query = request.args.get('query')
     trusted_host_ip = get_trusted_host_ip()
     response = send_request(trusted_host_ip, 'random', query)
-    return response.text
+    return response.text # response from the trusted host, which is the response from the query. Converted to text.
 
 @app.route('/customized', methods=['GET'])
 def custom_hit():
@@ -116,7 +117,7 @@ def custom_hit():
     query = request.args.get('query')
     trusted_host_ip = get_trusted_host_ip()
     response = send_request(trusted_host_ip, 'customized', query)
-    return response.text
+    return response.text # response from the trusted host, which is the response from the query. Converted to text.
 
 if __name__ == "__main__":
     """
